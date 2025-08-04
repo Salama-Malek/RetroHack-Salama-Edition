@@ -7,6 +7,7 @@ const sampleSnippet = `print('Hello, world!')`;
 
 const App: React.FC = () => {
   const [started, setStarted] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   return (
     <div className="app">
@@ -14,8 +15,8 @@ const App: React.FC = () => {
         <Countdown onComplete={() => setStarted(true)} />
       ) : (
         <>
-          <TypingWindow snippet={sampleSnippet} />
-          <PopupEvent />
+          <TypingWindow snippet={sampleSnippet} paused={paused} />
+          <PopupEvent onPause={setPaused} />
         </>
       )}
     </div>

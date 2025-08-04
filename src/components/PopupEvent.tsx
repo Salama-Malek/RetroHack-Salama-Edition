@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const messages = [
   'System Error: 0xDEAD',
@@ -6,24 +6,45 @@ const messages = [
   'Click OK to continue',
 ];
 
-const PopupEvent: React.FC = () => {
-  const [message, setMessage] = useState<string | null>(null);
+interface PopupEventProps {
+  onPause: (paused: boolean) => void;
+}
 
-  useEffect(() => {
-    const timer = setInterval(() => {
+const PopupEvent: React.FC<PopupEventProps> = ({ onPause }) => {
+  const [message, setMessage] = useState<string | null>(null);
+  const timerRef = useRef<number>();
+
+  const schedulePopup = () => {
+    timerRef.current = window.setTimeout(() => {
       const random = messages[Math.floor(Math.random() * messages.length)];
       setMessage(random);
-    }, 25000);
+      onPause(true);
+    }, 20000 + Math.random() * 10000);
+  };
 
-    return () => clearInterval(timer);
+  useEffect(() => {
+    schedulePopup();
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, []);
+
+  const closePopup = () => {
+    setMessage(null);
+    onPause(false);
+    schedulePopup();
+  };
 
   if (!message) return null;
 
   return (
-    <div className="popup-event" onClick={() => setMessage(null)}>
-      <p>{message}</p>
-      <button>OK</button>
+    <div className="popup-event">
+      <div className="popup-content">
+        <p>{message}</p>
+        <button onClick={closePopup}>OK</button>
+      </div>
     </div>
   );
 };
